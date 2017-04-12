@@ -82,7 +82,7 @@
                         <strong class="col-md-2">Total order worth: {{TotalOrderWorth}} &#8377</strong><br><br>
                       </div>
                       <div class="col-md-6">
-                        <strong class="col-md-2" ng-repeat="menuItem in menu">{{menuItem.name}}: {{menuItem.quantity}}<br><br></strong>
+                        <strong class="col-md-2" ng-repeat="menuItem in menu" ng-if="menuItem.quantity">{{menuItem.name}}: {{menuItem.quantity}}<br><br></strong>
                       </div>
                     </div>
                   </div>

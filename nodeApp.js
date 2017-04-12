@@ -96,6 +96,6 @@ app.get('/logout', auth, function (req, res) {
   res.redirect('/home');
 });
 
-app.listen(3000, function () {
-  console.log('app started at http://localhost:3000');
+app.listen(80, function () {
+  console.log('app started at port 80');
 });
