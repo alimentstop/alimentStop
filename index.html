@@ -1,0 +1,172 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>C O P</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- Material Design Bootstrap -->
+    <link href="css/mdb.min.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+    <link href="http://vjs.zencdn.net/5.16.0/video-js.css" rel="stylesheet">
+
+</head>
+
+<body ng-app="www">
+    <nav class="navbar navbar-toggleable-md navbar-dark elegant-color-dark">
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <a class="navbar-brand" href="#"><strong>Aliment stop</strong></a>
+      <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav">
+        </ul>
+
+        <ul class="navbar-nav ml-auto nav-flex-icons">
+            <li class="nav-item active">
+              <a class="nav-link" href="#"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+            </li>
+            <li>&nbsp;&nbsp;&nbsp;&nbsp;</li>
+            <li class="nav-item avatar dropdown">
+                <a class="nav-link dropdown-toggle waves-effect waves-light" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-user" aria-hidden="true"></i> {{user.name}}</a>
+                <div class="dropdown-menu dropdown-warning dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item waves-effect waves-light" href="#"><i class="fa fa-gear" aria-hidden="true"></i> Profile</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item waves-effect waves-light" href="/logout"><i class="fa fa-sign-out" aria-hidden="true"></i> Logout</a>
+                </div>
+            </li>
+        </ul>
+      </div>
+    </nav>
+    <img ng-if="appLoading || loadingOrders" src="images/rolling.svg" class="loader-gif">
+    <div class="row" style="margin-top: 20px; visibility: hidden;" ng-if="!appLoading" id="main">
+        <div class="col-md-1"></div>
+        <div ui-view class="col-md-10">
+          <div class="row">
+            <div class="col-md-2">
+              <div class="btn-group" style="margin-left: 6px; margin-bottom: 6px;">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select bus</button>
+
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" ng-repeat="bus in buses" href="" ng-click="selectBus(bus)">{{bus.busRegNo}}</a>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <button type="button" class="btn btn-primary" style="margin-top: 0px;" ng-if="currentBus">{{currentBus.busRegNo}}</button>
+            </div>
+            <div class="col-md-2">
+              <div class="md-form" width="200px" ng-if="currentBus" style="margin-left: 6px; margin-top: 6px;">
+                <input type="text" id="form1" class="form-control" ng-model="fields.seatNo" required>
+                <label for="form1" class="">Seat No.</label>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <button type="button" class="btn btn-primary" ng-if="currentBus" ng-click="selectSeat()" ng-disabled="!fields.seatNo">go</button>
+            </div>
+          </div>
+
+            </br>
+            </br>
+            <div ng-if="orderLoaded">
+              <div class="row">
+                <div class="col-1">
+                </div>
+                <div class="col-1">
+                  <strong>Menu</strong>
+                </div>
+              </div>
+              </br>
+              </hr>
+              <div ng-repeat="(groupName, menuItems) in menu">
+                <div class="row">
+                  <div class="col-1">
+                  </div>
+                  <div class="col-4">
+                    <strong>
+                      {{groupName}}
+                    </strong>
+                  </div>
+                </div>
+                <div ng-repeat="item in menuItems" style="margin-left: 20px">
+                  <div class="row">
+                    <div class="col-1">
+                    </div>
+                    <div class="col">
+                      {{item.name}}
+                    </div>
+                    <div class="col">
+                      <span ng-if="item.quantity">
+                        <span class="badge badge-primary" ng-if="item.quantity">{{item.quantity}}</span>
+                        &nbsp;&nbsp;{{item.price*item.quantity}} &#8377
+                      </span>
+
+                      <span ng-if="!item.quantity">
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{item.price}} &#8377
+                      </span>
+                    </div>
+                    <div class="col">
+                      <div class="row">
+                        <div class="col">
+                          <div class="btn-group" data-toggle="buttons" ng-if="!isSaveDisabled">
+                              <label class="btn btn-sm btn-primary btn-rounded waves-effect waves-light" ng-click="removeItem(item)">
+                                <input type="radio" name="options" id="option1">—
+                              </label>
+                              <label class="btn btn-sm btn-primary btn-rounded waves-effect waves-light" ng-click="addItem(item)">
+                                <input type="radio" name="options" id="option2">+
+                              </label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  </br>
+                </div>
+              </div>
+              </hr>
+              <div>
+                <div class="row priceCol">
+                  <div class="col-1">
+                  </div>
+                  <div class="col-md-2 col-xs-2">
+                    Total Price
+                  </div>
+                  <div class="col-md-2 col-xs-2">
+                    {{price}} &#8377
+                  </div>
+                </div>
+              </div>
+              </br>
+              <button type="button" ng-disabled="isSaveDisabled" class="btn btn-success" ng-click="saveOrder()">Save</button>
+          </div>
+        </div>
+    </div>
+    <!-- SCRIPTS -->
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
+    <!-- Bootstrap tooltips -->
+    <script type="text/javascript" src="js/tether.min.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <!-- MDB core JavaScript -->
+    <script type="text/javascript" src="js/mdb.min.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/async.js"></script>
+    <script src="js/asyncFactory.js"></script>
+    <script src="js/underscore.js"></script>
+    <script src="js/underscoreFactory.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.8/angular-ui-router.min.js"></script>
+    <script src="http://vjs.zencdn.net/5.16.0/video.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

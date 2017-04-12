@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>C O P</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- Material Design Bootstrap -->
+    <link href="css/mdb.min.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+    <link href="http://vjs.zencdn.net/5.16.0/video-js.css" rel="stylesheet">
+
+</head>
+
+<body ng-app="www" ng-controller="ordersByBusCtrl">
+    <nav class="navbar navbar-toggleable-md navbar-dark elegant-color-dark">
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <a class="navbar-brand" href="#"><strong>Aliment stop</strong></a>
+      <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav ml-auto nav-flex-icons">
+          <li class="nav-item active">
+            <a class="nav-link" href="#"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+          </li>
+          <li>&nbsp;&nbsp;&nbsp;&nbsp;</li>
+          <li class="nav-item avatar dropdown">
+              <a class="nav-link dropdown-toggle waves-effect waves-light" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fa fa-user" aria-hidden="true"></i> {{user.name}}</a>
+              <div class="dropdown-menu dropdown-warning dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+                  <a class="dropdown-item waves-effect waves-light" href="#"><i class="fa fa-gear" aria-hidden="true"></i> Profile</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item waves-effect waves-light" href="/logout"><i class="fa fa-sign-out" aria-hidden="true"></i> Logout</a>
+              </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <img ng-if="appLoading || loadingOrders" src="images/rolling.svg" class="loader-gif">
+    <div class="row" style="margin-top: 20px; visibility: hidden;" ng-hide="!appLoaded" id="main">
+      <div class="col-xs-1 col-md-1"></div>
+      <div class="col-xs-10 col-md-10">
+        <div class="row">
+          <div class="col-xs-2 col-md-2">
+            <div class="btn-group" style="margin-left: 6px; margin-bottom: 6px;">
+              <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select bus</button>
+
+              <div class="dropdown-menu">
+                  <a class="dropdown-item" ng-repeat="bus in buses" href="" ng-click="selectBus(bus)">{{bus.busRegNo}}</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-xs-2 col-md-2">
+            <button type="button" style="margin-top: 0px;" class="btn btn-primary" ng-if="currentBus">{{currentBus.busRegNo}}</button>
+          </div>
+          <div class="col-xs-4 col-md-4">
+            <button type="button" style="margin-top: 0px;" class="btn btn-primary" ng-if="currentBus">{{currentBus.startPoint}} to {{currentBus.endPoint}}</button>
+          </div>
+        </div>
+        </br>
+        <div ng-if="ordersLoaded">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card">
+                <div>
+                  <div class="card-header success-color white-text">
+                    Summary
+                  </div>
+                  <div class="card-block">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <strong class="col-md-2">#orders: {{ordersBySeat.length}}</strong><br><br>
+                        <strong class="col-md-2">#Items: {{totalItemsOrdered}}</strong><br><br>
+                        <strong class="col-md-2">Total order worth: {{TotalOrderWorth}} &#8377</strong><br><br>
+                      </div>
+                      <div class="col-md-6">
+                        <strong class="col-md-2" ng-repeat="menuItem in menu">{{menuItem.name}}: {{menuItem.quantity}}<br><br></strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                </br>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div ng-repeat="orderBySeat in ordersBySeat">
+                <div class="card">
+                  <div class="card-header primary-color white-text">
+                    SeatNo: {{orderBySeat.seatNo}}
+                  </div>
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>id</th>
+                        <th>Menu Item</th>
+                        <th>Price</th>
+                        <th>quantity</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr ng-repeat="order in orderBySeat.orders">
+                        <th scope="row">{{order.id}}</th>
+                        <td>{{order.menuItemName}}</td>
+                        <td>{{order.price}} &#8377</td>
+                        <td>{{order.quantity}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="card-block">
+                    <a class="btn btn-primary">Total Price: {{orderBySeat.totalPrice}} &#8377</a>
+                  </div>
+                </div>
+                </br>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- SCRIPTS -->
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
+    <!-- Bootstrap tooltips -->
+    <script type="text/javascript" src="js/tether.min.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <!-- MDB core JavaScript -->
+    <script type="text/javascript" src="js/mdb.min.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/async.js"></script>
+    <script src="js/asyncFactory.js"></script>
+    <script src="js/underscore.js"></script>
+    <script src="js/underscoreFactory.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.8/angular-ui-router.min.js"></script>
+    <script src="http://vjs.zencdn.net/5.16.0/video.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

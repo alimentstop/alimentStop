@@ -1,0 +1,42 @@
+{
+  "name": "node",
+  "version": "1.0.0",
+  "description": "my node",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "vc",
+  "license": "ISC",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "jsdom": "*",
+    "express": "*",
+    "jsdom": "*",
+    "twitter": "*",
+    "sequelize": "*",
+    "mysql": "*",
+    "pg": "*",
+    "async": "*",
+    "node-schedule": "*",
+    "underscore": "*",
+    "glob": "*",
+    "cookie-parser": "*",
+    "express-session": "*",
+    "body-parser": "*",
+    "querystring": "*",
+    "connect-pg-simple": "*",
+    "pg": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "none"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\""
+  },
+  "keywords": [
+    "abc"
+  ]
+}
