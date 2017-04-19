@@ -27,7 +27,8 @@
     "body-parser": "*",
     "querystring": "*",
     "connect-pg-simple": "*",
-    "pg": "*"
+    "pg": "*",
+    "request": "*"
   },
   "repository": {
     "type": "git",

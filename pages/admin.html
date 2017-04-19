@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>C O P</title>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
+  <!-- Bootstrap core CSS -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <!-- Material Design Bootstrap -->
+  <link href="css/mdb.min.css" rel="stylesheet">
+  <link href="css/main.css" rel="stylesheet">
+  <!-- Your custom styles (optional) -->
+  <link href="css/style.css" rel="stylesheet">
+  <link href="http://vjs.zencdn.net/5.16.0/video-js.css" rel="stylesheet">
+
+</head>
+
+<body ng-app="www" ng-controller="adminCtrl">
+  <!-- new bus modal -->
+  <div class="modal fade" id="newBusModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <!--Content-->
+      <div class="modal-content">
+        <!--Header-->
+        <div class="modal-header">
+          <h4 class="modal-title w-100" id="myModalLabel"><i class="fa fa-bus" aria-hidden="true"></i> New Bus</h4>
+        </div>
+        <!--Body-->
+        <div class="modal-body">
+          <div class="md-form">
+            <input type="text" id="form4" ng-model="newBus.busRegNo" class="form-control">
+            <label for="form2">Bus reg no</label>
+          </div>
+
+          <div class="md-form">
+            <input type="text" id="form4" ng-model="newBus.startPoint" class="form-control">
+            <label for="form4">Start Point</label>
+          </div>
+
+          <div class="md-form">
+            <input type="text" id="form4" ng-model="newBus.endPoint" class="form-control">
+            <label for="form4">End Point</label>
+          </div>
+
+          <div class="md-form">
+            <div class="btn-group" style="margin-bottom: 6px;">
+              <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-bottom: 0px;">
+                        {{selectedHotel?selectedHotel.name:'select hotel'}}
+                      </button>
+
+              <div class="dropdown-menu">
+                <a class="dropdown-item" ng-if="hotels.length === 0" href="">No hotels added yet</a>
+                <a class="dropdown-item" ng-repeat="hotel in hotels" href="" ng-click="selectHotel(hotel)">{{hotel.name}}</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="red-text" style="padding-left: 10px;" ng-if="error">error: {{error}}</span>
+        <!--Footer-->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" ng-click="createBus()" ng-disabled="!newBus.busRegNo || !newBus.startPoint || !newBus.endPoint || !selectedHotel">Save</button>
+        </div>
+      </div>
+      <!--/.Content-->
+    </div>
+  </div>
+  <!-- new hotel modal -->
+  <div class="modal fade" id="newHotelModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <!--Content-->
+      <div class="modal-content">
+        <!--Header-->
+        <div class="modal-header">
+          <h4 class="modal-title w-100" id="myModalLabel"><i class="fa fa-home" aria-hidden="true"></i> New Hotel</h4>
+        </div>
+        <!--Body-->
+        <div class="modal-body">
+          <div class="md-form">
+            <input type="text" id="form2" ng-model="newHotel.name" class="form-control">
+            <label for="form2">Name</label>
+          </div>
+
+          <div class="md-form">
+            <input type="text" id="form4" ng-model="newHotel.location" class="form-control">
+            <label for="form4">Location Info</label>
+          </div>
+        </div>
+        <span class="red-text" style="padding-left: 10px;" ng-if="error">hotelError: {{error}}</span>
+        <!--Footer-->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" ng-click="saveHotel()" ng-disabled="!newHotel.name || !newHotel.location">Save</button>
+        </div>
+      </div>
+      <!--/.Content-->
+    </div>
+  </div>
+  <nav class="navbar navbar-toggleable-md navbar-dark elegant-color-dark">
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    <a class="navbar-brand" href="#"><strong>Aliment stop</strong></a>
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <ul class="navbar-nav ml-auto nav-flex-icons">
+        <li class="nav-item">
+          <a class="nav-link" href="/"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="ordersByBus.html"><i class="fa fa-list" aria-hidden="true"></i> Orders</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="#"><i class="fa fa-user" aria-hidden="true"></i> Admin</a>
+        </li>
+        <li>&nbsp;&nbsp;&nbsp;&nbsp;</li>
+        <li class="nav-item avatar dropdown">
+          <a class="nav-link dropdown-toggle waves-effect waves-light" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-user" aria-hidden="true"></i> {{user.name}}</a>
+          <div class="dropdown-menu dropdown-warning dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+            <a class="dropdown-item waves-effect waves-light" href="#"><i class="fa fa-gear" aria-hidden="true"></i> Profile</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item waves-effect waves-light" href="/logout"><i class="fa fa-sign-out" aria-hidden="true"></i> Logout</a>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+
+  <img ng-if="appLoading || loadingOrders" src="images/rolling.svg" class="loader-gif">
+  <div class="row" style="margin-top: 20px; visibility: hidden;" ng-hide="!appLoaded" id="main">
+    <div class="col-xs-1 col-md-1"></div>
+    <div class="col-xs-10 col-md-10">
+      <div class="row">
+
+        <!-- Add hotel -->
+        <div class="col-xs-2 col-md-2">
+          <div class="btn-group" style="margin-left: 6px; margin-bottom: 6px;">
+            <button class="btn btn-success" type="button" data-toggle="modal" data-target="#newHotelModal">
+              <i class="fa fa-plus" aria-hidden="true"></i>&nbsp; Add hotel
+            </button>
+          </div>
+        </div>
+
+        <!-- Add Bus -->
+        <div class="col-xs-2 col-md-2">
+          <div class="btn-group" style="margin-left: 6px; margin-bottom: 6px;">
+            <button class="btn btn-success" type="button" data-toggle="modal" data-target="#newBusModal">
+              <i class="fa fa-plus" aria-hidden="true"></i>&nbsp; Add Bus
+            </button>
+          </div>
+        </div>
+
+        <!-- Buses dropdown -->
+        <div class="col-xs-2 col-md-2">
+          <div class="btn-group" style="margin-left: 6px; margin-bottom: 6px;">
+            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{currentBus?currentBus.busRegNo:'select bus'}}
+              </button>
+
+            <div class="dropdown-menu">
+              <a class="dropdown-item" ng-if="buses.length === 0" href="">No buses added yet</a>
+              <a class="dropdown-item" ng-repeat="bus in buses" href="" ng-click="selectBus(bus)">{{bus.busRegNo}}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      </br>
+      <div ng-if="ordersLoaded">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-block">
+
+                <!--Header-->
+                <div class="text-center">
+                  <h3><i class="fa fa-bus" aria-hidden="true"></i> Bus Info</h3>
+                  <hr class="mt-2 mb-2">
+                </div>
+
+                <!--Body-->
+                <div class="md-form">
+                  <input type="text" id="form2" ng-model="currentBus.id" class="form-control" ng-disabled="true">
+                  <label for="form2" class="{{currentBus?'active':''}}">Id</label>
+                </div>
+
+                <div class="md-form">
+                  <input type="text" id="form2" ng-model="currentBus.busRegNo" class="form-control">
+                  <label for="form2" class="{{currentBus?'active':''}}">Bus reg no</label>
+                </div>
+
+                <div class="md-form">
+                  <input type="text" id="form4" ng-model="currentBus.startPoint" class="form-control">
+                  <label for="form4" class="{{currentBus?'active':''}}">Start Point</label>
+                </div>
+
+                <div class="md-form">
+                  <input type="text" id="form4" ng-model="currentBus.endPoint" class="form-control">
+                  <label for="form4" class="{{currentBus?'active':''}}">End Point</label>
+                </div>
+
+                <div class="md-form">
+                  <div class="btn-group" style="margin-bottom: 6px;">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-bottom: 0px;">
+                            {{selectedHotel?selectedHotel.name:'select hotel'}}
+                          </button>
+
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" ng-repeat="hotel in hotels" href="" ng-click="selectHotel(hotel)">{{hotel.name}}</a>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-center">
+                  <button class="btn btn-deep-purple" ng-click="saveBus()">Save</button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header secondary-color-dark white-text">
+                Add new menu item
+              </div>
+              <div style="padding: 10px;">
+                <hr class="mt-2 mb-2">
+                <div class="md-form">
+                  <input type="text" id="form2" ng-model="newMenuItem.name" class="form-control">
+                  <label for="form2">name</label>
+                </div>
+                <div class="md-form">
+                  <input type="number" id="form2" ng-model="newMenuItem.price" class="form-control">
+                  <label for="form2">price &#8377</label>
+                </div>
+                <div class="md-form">
+                  <input type="text" id="form2" ng-model="newMenuItem.group" class="form-control">
+                  <label for="form2">group</label>
+                </div>
+                <span class="red-text" style="padding-left: 10px;" ng-if="menuError">error: {{menuError}}</span>
+                <div class="text-center">
+                  <button class="btn btn-deep-purple" ng-click="createMenuItem()" ng-disabled="!newMenuItem.name || !newMenuItem.price || !newMenuItem.group">Add</button>
+                </div>
+              </div>
+            </div>
+            </br>
+            <div ng-repeat="menuItem in menu">
+              <div class="card">
+                <div class="card-header primary-color white-text">
+                  {{menuItem.name}}<span class="pull-right"><a ng-click="deleteMenuItem(menuItem.id)"><i class="fa fa-close" aria-hidden="true"></i></a></span>
+                </div>
+                <div style="padding: 10px;">
+                  <hr class="mt-2 mb-2">
+                  <div class="md-form">
+                    <input type="number" id="form2" ng-model="menuItem.price" class="form-control" ng-disabled="true">
+                    <label for="form2" class="active">price &#8377</label>
+                  </div>
+                  <div class="md-form">
+                    <input type="text" id="form2" ng-model="menuItem.group" class="form-control" ng-disabled="true">
+                    <label for="form2" class="active">group</label>
+                  </div>
+                </div>
+              </div>
+              </br>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- SCRIPTS -->
+  <!-- JQuery -->
+  <script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
+  <!-- Bootstrap tooltips -->
+  <script type="text/javascript" src="js/tether.min.js"></script>
+  <!-- Bootstrap core JavaScript -->
+  <script type="text/javascript" src="js/bootstrap.min.js"></script>
+  <!-- MDB core JavaScript -->
+  <script type="text/javascript" src="js/mdb.min.js"></script>
+  <script src="js/angular.min.js"></script>
+  <script src="js/async.js"></script>
+  <script src="js/asyncFactory.js"></script>
+  <script src="js/underscore.js"></script>
+  <script src="js/underscoreFactory.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.8/angular-ui-router.min.js"></script>
+  <script src="http://vjs.zencdn.net/5.16.0/video.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>

@@ -1,23 +1,8 @@
 'use strict';
 
 var www = angular.module('www', ['async', 'ui.router']);
-www.config(function($stateProvider, $urlRouterProvider) {
-    
-    $urlRouterProvider.otherwise('/home');
-    
-    $stateProvider
-      .state('home', {
-          url: '/',
-          templateUrl: 'index.html'
-      })
-      .state('course', {
-          url: '/course/:id',
-          templateUrl: 'course.html',
-          controller: 'courseCtrl'
-      });
-});
 
-(function () {
+(function() {
   www.run(['$rootScope', '$http', 'async', '$q', startApp]);
 
   function startApp($rootScope, $http, async, $q) {
@@ -31,13 +16,13 @@ www.config(function($stateProvider, $urlRouterProvider) {
     $rootScope.price = null;
     $rootScope.isSaveDisabled = false;
     console.log(document.getElementById("main").style.visibility = 'visible');
-    $rootScope.fields= {
+    $rootScope.fields = {
       seatNo: null
     };
     async.series([
-      _getBuses
-    ],
-      function (err) {
+        _getBuses
+      ],
+      function(err) {
         if (err) {
           return horn.error(err);
           $rootScope.appLoading = false;
@@ -48,9 +33,9 @@ www.config(function($stateProvider, $urlRouterProvider) {
       }
     );
 
-    function _getBuses (next) {
+    function _getBuses(next) {
       console.log("asdasdsadas");
-      $http.get('/api/buses').then(function (res) {
+      $http.get('/api/buses').then(function(res) {
         $rootScope.buses = res.data;
         if (next)
           return next();
@@ -59,9 +44,9 @@ www.config(function($stateProvider, $urlRouterProvider) {
       });
     }
 
-    $rootScope.selectBus = function (bus) {
+    $rootScope.selectBus = function(bus) {
       $rootScope.currentBus = bus;
-      $http.get('/api/menuItems/' + bus.hotelId + '?isActive=true').then(function (res) {
+      $http.get('/api/menuItems/' + bus.hotelId + '?isActive=true').then(function(res) {
         $rootScope.menu = _.groupBy(res.data, 'group');
         $rootScope.originalMenu = res.data;
         console.log("menu", $rootScope.menu);
@@ -70,20 +55,24 @@ www.config(function($stateProvider, $urlRouterProvider) {
       });
     }
 
-    $rootScope.selectSeat = function () {
+    $rootScope.selectSeat = function() {
       $rootScope.orderLoaded = false;
       $rootScope.loadingOrders = true;
       if (!$rootScope.fields.seatNo) {
         return;
       }
-      $http.get('/api/orders/' + $rootScope.fields.seatNo).then(function (res) {
+      $http.get('/api/orders/' + $rootScope.fields.seatNo).then(function(res) {
         console.log("orders", res.data);
         $rootScope.orders = res.data;
-        $rootScope.orders.length !== 0?$rootScope.isSaveDisabled = true : $rootScope.isSaveDisabled = false;
+        $rootScope.orders.length !== 0 ? $rootScope.isSaveDisabled = true : $rootScope.isSaveDisabled = false;
         _.each($rootScope.originalMenu,
-          function (menuItem){
-            if (_.findWhere($rootScope.orders, {menuItemId: menuItem.id}))
-              menuItem.quantity = _.findWhere($rootScope.orders, {menuItemId: menuItem.id}).quantity;
+          function(menuItem) {
+            if (_.findWhere($rootScope.orders, {
+                menuItemId: menuItem.id
+              }))
+              menuItem.quantity = _.findWhere($rootScope.orders, {
+                menuItemId: menuItem.id
+              }).quantity;
             else
               menuItem.quantity = null;
           }
@@ -95,17 +84,16 @@ www.config(function($stateProvider, $urlRouterProvider) {
       });
     }
 
-    $rootScope.addItem = function (item) {
+    $rootScope.addItem = function(item) {
       if (!item.quantity) {
         item.quantity = 1;
-      }
-      else {
+      } else {
         item.quantity++;
       }
       getPrice();
     }
 
-    $rootScope.removeItem = function (item) {
+    $rootScope.removeItem = function(item) {
       if (!item.quantity)
         return;
       else
@@ -113,13 +101,13 @@ www.config(function($stateProvider, $urlRouterProvider) {
       getPrice();
     }
 
-    $rootScope.saveOrder = function () {
+    $rootScope.saveOrder = function() {
       var orders = [];
       _.each($rootScope.originalMenu,
-        function (item) {
+        function(item) {
           if (item.quantity)
             orders.push({
-              busId:  $rootScope.currentBus.id,
+              busId: $rootScope.currentBus.id,
               seatNo: $rootScope.fields.seatNo,
               menuItemId: item.id,
               quantity: item.quantity
@@ -140,16 +128,16 @@ www.config(function($stateProvider, $urlRouterProvider) {
 
     function getPrice() {
       $rootScope.price = 0;
-       _.each($rootScope.originalMenu,
-          function (menuItem){
-            $rootScope.price += menuItem.price * menuItem.quantity;
-          }
-        );
+      _.each($rootScope.originalMenu,
+        function(menuItem) {
+          $rootScope.price += menuItem.price * menuItem.quantity;
+        }
+      );
     }
   }
 })();
 
-(function () {
+(function() {
   'use strict';
 
   www.controller('ordersByBusCtrl', ['$scope', '$http', 'async', ordersByBusCtrl]);
@@ -158,11 +146,11 @@ www.config(function($stateProvider, $urlRouterProvider) {
     $scope.appPromise.then(init);
     $scope.ordersLoaded = false;
     $scope.loadingOrders = false;
+
     function init() {
       document.getElementById("main").style.visibility = 'visible';
-      async.series([
-      ],
-        function (err) {
+      async.series([],
+        function(err) {
           if (err) {
             return horn.error(err);
           }
@@ -170,38 +158,40 @@ www.config(function($stateProvider, $urlRouterProvider) {
       );
     }
 
-    function _getOrdersByBusId (next) {
+    function _getOrdersByBusId(next) {
       console.log("buses", $scope.buses);
-      $http.get('/api/ordersByBusId/' + $scope.currentBus.id).then(function (res) {
+      $http.get('/api/ordersByBusId/' + $scope.currentBus.id).then(function(res) {
         $scope.orders = res.data;
         console.log("orders", $scope.orders);
         return next();
       });
     }
 
-    function _getMenuItemsByHotelId (next) {
-      $http.get('/api/menuItems/' + $scope.currentBus.hotelId).then(function (res) {
+    function _getMenuItemsByHotelId(next) {
+      $http.get('/api/menuItems/' + $scope.currentBus.hotelId).then(function(res) {
         $scope.menu = res.data;
         console.log("menu", $scope.menu);
         return next();
       });
     }
 
-    $scope.selectBus = function (bus) {
+    $scope.selectBus = function(bus) {
       $scope.ordersLoaded = false;
       $scope.loadingOrders = true;
       $scope.currentBus = bus;
       async.series([
-        _getMenuItemsByHotelId,
-        _getOrdersByBusId
-      ],
-        function (err) {
+          _getMenuItemsByHotelId,
+          _getOrdersByBusId
+        ],
+        function(err) {
           if (err) {
             return horn.error(err);
           }
           _.each($scope.orders,
-            function (order) {
-              var menuItem = _.findWhere($scope.menu, {id: order.menuItemId})
+            function(order) {
+              var menuItem = _.findWhere($scope.menu, {
+                id: order.menuItemId
+              })
               order.menuItemName = menuItem.name;
               order.totalPrice = menuItem.price * order.quantity;
               order.price = menuItem.price;
@@ -209,23 +199,25 @@ www.config(function($stateProvider, $urlRouterProvider) {
           );
           var ordersByMenuItem = _.groupBy($scope.orders, 'menuItemId');
           _.each(ordersByMenuItem,
-            function (orders, menuItemId) {
+            function(orders, menuItemId) {
               var totalQuantity = 0;
               _.each(orders,
-                function (order) {
+                function(order) {
                   totalQuantity += order.quantity;
                 }
               );
-              _.findWhere($scope.menu, {id: parseInt(menuItemId)}).quantity = totalQuantity;
+              _.findWhere($scope.menu, {
+                id: parseInt(menuItemId)
+              }).quantity = totalQuantity;
             }
           );
           var ordersBySeat = _.groupBy($scope.orders, 'seatNo');
           $scope.ordersBySeat = [];
           _.each(ordersBySeat,
-            function (orders, seatNo) {
+            function(orders, seatNo) {
               var totalPrice = 0;
               _.each(orders,
-                function (order) {
+                function(order) {
                   totalPrice += order.totalPrice;
                 }
               );
@@ -238,13 +230,13 @@ www.config(function($stateProvider, $urlRouterProvider) {
           );
           $scope.totalItemsOrdered = 0;
           _.each($scope.orders,
-            function (order) {
+            function(order) {
               $scope.totalItemsOrdered += order.quantity;
             }
           );
           $scope.TotalOrderWorth = 0;
           _.each($scope.ordersBySeat,
-            function (order) {
+            function(order) {
               $scope.TotalOrderWorth += order.totalPrice;
             }
           );
@@ -256,7 +248,7 @@ www.config(function($stateProvider, $urlRouterProvider) {
   }
 }());
 
-(function () {
+(function() {
   'use strict';
 
   www.controller('adminCtrl', ['$scope', '$rootScope', '$http', 'async', adminCtrl]);
@@ -269,12 +261,13 @@ www.config(function($stateProvider, $urlRouterProvider) {
     $scope.newMenuItem = {};
     $scope.newHotel = {};
     $scope.selectedHotel = null;
+
     function init() {
       document.getElementById("main").style.visibility = 'visible';
       async.series([
-        _getHotels
-      ],
-        function (err) {
+          _getHotels
+        ],
+        function(err) {
           if (err) {
             return horn.error(err);
           }
@@ -282,8 +275,8 @@ www.config(function($stateProvider, $urlRouterProvider) {
       );
     }
 
-    function _getMenuItemsByHotelId (next) {
-      $http.get('/api/menuItems/' + $scope.currentBus.hotelId + '?isActive=true').then(function (res) {
+    function _getMenuItemsByHotelId(next) {
+      $http.get('/api/menuItems/' + $scope.currentBus.hotelId + '?isActive=true').then(function(res) {
         $scope.menu = res.data;
         console.log("menu", $scope.menu);
         if (next)
@@ -293,8 +286,8 @@ www.config(function($stateProvider, $urlRouterProvider) {
       });
     }
 
-    function _getHotels (next) {
-      $http.get('/api/hotels/').then(function (res) {
+    function _getHotels(next) {
+      $http.get('/api/hotels/').then(function(res) {
         $scope.hotels = res.data;
         console.log("hotels", $scope.hotels);
         if (next)
@@ -305,10 +298,12 @@ www.config(function($stateProvider, $urlRouterProvider) {
     }
 
 
-    function _getCurrentBusById (next) {
-      $http.get('/api/buses/' + $scope.currentBus.id).then(function (res) {
+    function _getCurrentBusById(next) {
+      $http.get('/api/buses/' + $scope.currentBus.id).then(function(res) {
         $scope.currentBus = res.data;
-        $scope.selectedHotel = _.findWhere($scope.hotels, {id: $scope.currentBus.hotelId});
+        $scope.selectedHotel = _.findWhere($scope.hotels, {
+          id: $scope.currentBus.hotelId
+        });
         $scope.currentBus.hotelName = $scope.selectedHotel.name;
         if (next)
           return next();
@@ -317,30 +312,34 @@ www.config(function($stateProvider, $urlRouterProvider) {
       });
     }
 
-    $scope.selectHotel = function (hotel) {
+    $scope.selectHotel = function(hotel) {
       $scope.selectedHotel = hotel;
     }
 
-    $scope.selectBus = function (bus) {
+    $scope.selectBus = function(bus) {
       $scope.ordersLoaded = false;
       $scope.loadingOrders = true;
       $scope.currentBus = bus;
-      $scope.currentBus.hotelName = _.findWhere($scope.hotels, {id: $scope.currentBus.hotelId}).name;
+      $scope.currentBus.hotelName = _.findWhere($scope.hotels, {
+        id: $scope.currentBus.hotelId
+      }).name;
       async.series([
-        _getMenuItemsByHotelId
-      ],
-        function (err) {
+          _getMenuItemsByHotelId
+        ],
+        function(err) {
           if (err) {
             return horn.error(err);
           }
-          $scope.selectedHotel = _.findWhere($scope.hotels, {id: $scope.currentBus.hotelId});
+          $scope.selectedHotel = _.findWhere($scope.hotels, {
+            id: $scope.currentBus.hotelId
+          });
           $scope.loadingOrders = false;
           $scope.ordersLoaded = true;
         }
       );
     }
 
-    $scope.createBus = function () {
+    $scope.createBus = function() {
       $scope.savingBus = true;
       $scope.newBus.hotelId = $scope.selectedHotel.id;
       $http({
@@ -354,14 +353,14 @@ www.config(function($stateProvider, $urlRouterProvider) {
           $scope.newBus = null;
           $scope.savingBus = false;
         },
-        function (err) {
+        function(err) {
           $scope.error = err.data.error;
           $scope.savingBus = false;
         }
       );
     }
 
-    $scope.saveHotel = function () {
+    $scope.saveHotel = function() {
       $scope.savingHotel = true;
       $http({
         method: 'POST',
@@ -374,14 +373,14 @@ www.config(function($stateProvider, $urlRouterProvider) {
           $scope.newHotel = null;
           $scope.savingHotel = false;
         },
-        function (err) {
+        function(err) {
           $scope.hotelError = err.data.error;
           $scope.savingHotel = false;
         }
       );
     }
 
-    $scope.createMenuItem = function () {
+    $scope.createMenuItem = function() {
       $scope.savingMenuItem = true;
       $scope.newMenuItem.hotelId = parseInt($scope.currentBus.hotelId);
       $scope.newMenuItem.price = parseInt($scope.newMenuItem.price);
@@ -394,14 +393,14 @@ www.config(function($stateProvider, $urlRouterProvider) {
           $scope.menu.push(res.data);
           $scope.savingMenuItem = false;
         },
-        function (err) {
+        function(err) {
           $scope.menuError = err.data.error;
           $scope.savingMenuItem = false;
         }
       );
     }
 
-    $scope.deleteMenuItem = function (id) {
+    $scope.deleteMenuItem = function(id) {
       $scope.deletingMenuItem = true;
       $http({
         method: 'PUT',
@@ -411,13 +410,13 @@ www.config(function($stateProvider, $urlRouterProvider) {
           $scope.savingMenuItem = false;
           _getMenuItemsByHotelId();
         },
-        function (err) {
+        function(err) {
           $scope.deletingMenuItem = false;
         }
       );
     }
 
-    $scope.saveBus = function () {
+    $scope.saveBus = function() {
       $scope.currentBus.hotelId = $scope.selectedHotel.id;
       $http({
         method: 'PUT',
@@ -427,10 +426,8 @@ www.config(function($stateProvider, $urlRouterProvider) {
         function(res) {
           _getCurrentBusById();
         },
-        function (err) {
-        }
+        function(err) {}
       );
     }
   }
 }());
-
