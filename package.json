@@ -4,16 +4,16 @@
   "description": "my node",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\""
   },
   "author": "vc",
   "license": "ISC",
   "dependencies": {
+    "semantic-ui": "^2.2.10"
   },
   "devDependencies": {
     "jsdom": "*",
     "express": "*",
-    "jsdom": "*",
     "twitter": "*",
     "sequelize": "*",
     "mysql": "*",
@@ -27,15 +27,12 @@
     "body-parser": "*",
     "querystring": "*",
     "connect-pg-simple": "*",
-    "pg": "*",
-    "request": "*"
+    "request": "*",
+    "ejs": "*"
   },
   "repository": {
     "type": "git",
     "url": "none"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\""
   },
   "keywords": [
     "abc"

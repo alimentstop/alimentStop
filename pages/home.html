@@ -1,0 +1,125 @@
+<html ng-app="www" ng-controller="homeCtrl">
+<title>Aliment Stop</title>
+
+<head>
+</head>
+
+<body>
+  <div class="ui one huge inverted item menu">
+    <div class="item">
+      <h1 class="mainTitle">Aliment Stop</h1>
+    </div>
+  </div>
+  <div class="ui grid">
+    <div class="six wide column">
+    </div>
+    <div class="four wide column">
+      <div class="ui left icon action input {{loadingOrders?'loading':''}} mainSearchBar">
+        <input type="text" placeholder="Search..." ng-model="seatNo">
+        <i class="search icon"></i>
+        <button class="ui button" ng-click="selectSeat()" ng-disabled="!seatNo.length">Search</button>
+      </div>
+    </div>
+  </div>
+  <div class="ui grid" ng-if="ordersLoaded">
+    <div class="four wide column"></div>
+    <div class="eight wide column">
+      <h3>MENU</h3>
+    </div>
+  </div>
+  <div class="ui grid" ng-if="ordersLoaded">
+    <div class="four wide column"></div>
+    <div class="eight wide column">
+      <div class="ui styled accordion fluid">
+        <div ng-repeat="(groupName, items) in menu">
+          <div class="title groupName" ng-click="groupOpen()">
+            <i class="dropdown icon"></i> {{groupName}}
+          </div>
+          <div class="content">
+            <div class="ui list" ng-repeat="item in items">
+              <div class="item">
+                <div class="ui grid">
+                  <div class="four wide column">{{item.name}}</div>
+                  <div class="four wide column">
+                    <div class="ui buttons tiny">
+                      <button class="ui button blue" ng-click="addItem(item)" ng-disabled="orders.length">
+                        <i class="plus icon plus-btn-icon"></i>
+                      </button>
+                      <div class="or" data-text=""></div>
+                      <button class="ui button blue" ng-click="removeItem(item)" ng-disabled="orders.length">
+                        <i class="minus icon minus-btn-icon"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="four wide column">
+                    <span class="ui label blue" ng-if="item.quantity">
+                      {{item.quantity}}
+                    </span>
+                  </div>
+                  <div class="four wide column">
+                    {{item.price}} &#8377
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="three wide column">
+      <div class="ui segment">
+        <h3><i class="opencart icon"></i> Cart</h3>
+        <div class="ui divider"></div>
+        <h4 ng-if="ordersList().length">Items</h4>
+        <div class="ui list" style="margin-left: 10px;">
+          <div class="item" ng-repeat="item in ordersList()">
+            <div class="ui grid" ng-if="ordersLoaded">
+              <div class="three wide column">
+                {{item.name}}
+              </div>
+              <div class="three wide column">
+                <span class="ui label circular small blue" ng-if="item.quantity">
+                  {{item.quantity}}
+                </span>
+              </div>
+              <div class="three wide column">
+                {{item.quantity*item.price}} &#8377
+              </div>
+            </div>
+          </div>
+        </div>
+        <div ng-if="ordersList().length" class="ui divider"></div>
+        <div ng-if="ordersList().length">
+          Total Price:&nbsp;&nbsp;&nbsp;&nbsp;{{getPrice()}} &#8377
+        </div>
+        <div ng-if="ordersList().length" class="ui divider"></div>
+        <button class="positive ui button" ng-disabled="orders.length" ng-if="ordersList().length">
+          {{orders.length?'order already placed':'Place order'}}
+        </button>
+        <h4 ng-if="!ordersList().length">Your cart is empty</h4>
+      </div>
+    </div>
+  </div>
+</body>
+
+<script src="js/angular.min.js"></script>
+<script src="js/async.js"></script>
+<script src="js/asyncFactory.js"></script>
+<script src="js/underscore.js"></script>
+<script src="js/underscoreFactory.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.8/angular-ui-router.min.js"></script>
+<script src="app.js"></script>
+<link rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css">
+<link rel="stylesheet" type="text/css" href="css/main.css">
+<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+<script src="semantic/dist/semantic.min.js"></script>
+<base href="/" />
+
+<style>
+  body {
+    background-image: url(images/light_wool.png);
+  }
+</style>
+
+</html>

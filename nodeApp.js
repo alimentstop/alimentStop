@@ -10,6 +10,7 @@ var session = require('express-session');
 var bodyParser = require('body-parser');
 var request = require('request');
 var path = require('path');
+var ejs = require('ejs');
 app.use(bodyParser.urlencoded({
   extended: true
 }));
@@ -28,6 +29,9 @@ app.use(session({
     maxAge: 30 * 24 * 60 * 60 * 1000
   } // 30 days
 }));
+app.engine('html', require('ejs').renderFile);
+app.set('views', path.join(__dirname, '/pages'));
+app.set('view engine', 'html');
 
 app.use(express.static(path.join(__dirname, 'pages')));
 
@@ -75,7 +79,7 @@ var auth = function(req, res, next) {
 };
 
 app.get('/', auth, function(req, res) {
-  res.sendFile(__dirname + '/pages/main.html');
+  res.sendFile(__dirname + '/pages/home.html');
 });
 
 // Login endpoint
@@ -115,10 +119,6 @@ app.get('/ordersByBus/:busId', auth, function(req, res) {
 app.get('/logout', function(req, res) {
   req.session.destroy();
   res.redirect('/login');
-});
-
-app.get('*', function(req, res) {
-  res.send('what???', 404);
 });
 
 app.listen(80, function() {

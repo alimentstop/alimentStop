@@ -1,7 +1,9 @@
 'use strict';
 
 var www = angular.module('www', ['async', 'ui.router']);
-
+www.config(['$locationProvider', function($locationProvider) {
+  $locationProvider.html5Mode(true);
+}]);
 (function() {
   www.run(['$rootScope', '$http', 'async', '$q', startApp]);
 
@@ -15,7 +17,7 @@ var www = angular.module('www', ['async', 'ui.router']);
     $rootScope.isSaveDisabled = true;
     $rootScope.price = null;
     $rootScope.isSaveDisabled = false;
-    console.log(document.getElementById("main").style.visibility = 'visible');
+    //console.log(document.getElementById("main").style.visibility = 'visible');
     $rootScope.fields = {
       seatNo: null
     };
@@ -34,7 +36,6 @@ var www = angular.module('www', ['async', 'ui.router']);
     );
 
     function _getBuses(next) {
-      console.log("asdasdsadas");
       $http.get('/api/buses').then(function(res) {
         $rootScope.buses = res.data;
         if (next)
@@ -428,6 +429,113 @@ var www = angular.module('www', ['async', 'ui.router']);
         },
         function(err) {}
       );
+    }
+  }
+}());
+
+
+(function() {
+  'use strict';
+
+  www.controller('homeCtrl', ['$scope', '$rootScope', '$http', 'async', '$location', homeCtrl]);
+
+  function homeCtrl($scope, $rootScope, $http, async, $location) {
+    $scope.appPromise.then(init);
+    $scope.ordersLoaded = false;
+    $scope.loadingOrders = false;
+    $scope.seatNo = null;
+
+    function init() {
+      async.series([
+          _getBus,
+          _getHotel,
+          _getMenuItems
+        ],
+        function(err) {
+          if (err) {
+            alert(err);
+          }
+        }
+      );
+    }
+
+    function _getBus(next) {
+      $http.get('/api/buses/regNo/' + $location.search()['busRegNo']).then(function(res) {
+        $scope.bus = res.data;
+        return next();
+      });
+    }
+
+    function _getHotel(next) {
+      $http.get('/api/hotels/' + $scope.bus.hotelId).then(function(res) {
+        $scope.hotel = res.data;
+        return next();
+      });
+    }
+
+    function _getMenuItems(next) {
+      $http.get('/api/menuItems/' + $scope.bus.hotelId).then(function(res) {
+        $scope.menuItems = res.data;
+        console.log("bus", $scope.menuItems);
+        $scope.menu = _.groupBy(res.data, 'group');
+        return next();
+      });
+    }
+
+    $scope.selectSeat = function() {
+      $scope.ordersLoaded = false;
+      $scope.loadingOrders = true;
+      if (!$scope.seatNo) {
+        return;
+      }
+      $http.get('/api/orders/' + $scope.bus.id + '/' + $scope.seatNo).then(function(res) {
+        console.log("orders", res.data);
+        $scope.orders = res.data;
+        $scope.orders.length !== 0 ? $scope.isSaveDisabled = true : $scope.isSaveDisabled = false;
+        _.each($scope.menuItems,
+          function(menuItem) {
+            if (_.findWhere($scope.orders, {
+                menuItemId: menuItem.id
+              }))
+              menuItem.quantity = _.findWhere($scope.orders, {
+                menuItemId: menuItem.id
+              }).quantity;
+            else
+              menuItem.quantity = null;
+          }
+        );
+        $scope.loadingOrders = false;
+        $scope.ordersLoaded = true;
+        return;
+      });
+    }
+
+    $scope.getPrice = function() {
+      var price = 0;
+      _.each($scope.menuItems,
+        function(menuItem) {
+          price += menuItem.price * menuItem.quantity;
+        }
+      );
+      return price;
+    }
+
+    $scope.groupOpen = function() {
+      $('.ui.accordion').accordion({
+        exclusive: false
+      });
+    }
+
+    $scope.ordersList = function() {
+      return _.filter($scope.menuItems,
+        function (item) {
+          return item.quantity;
+        }
+      );
+    }
+
+    $scope.addItem = function(item) {
+      item.quantity ++;
     }
   }
 }());
